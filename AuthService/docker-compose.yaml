@@ -1,0 +1,38 @@
+services:
+  auth-service:
+    image: openjdk:22-jdk-oracle
+    container_name: authImage
+    ports:
+      - "${SERVICE_PORT1}:8080"
+      - "${SERVICE_PORT2}:8000"
+    env_file:
+      - .env
+    depends_on:
+      - auth-db
+    networks:
+      - iot-net
+    volumes:
+      - ./build/libs/AuthService-0.0.1-SNAPSHOT.jar:/app/app.jar
+    working_dir: /app
+    entrypoint: java -Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8000 -jar /app/app.jar
+
+  auth-db:
+    image: mongo:latest
+    container_name: authDB
+    ports:
+      - "${MONGO_PORT}:27017"
+    volumes:
+      - mongo_auth:/etc/mongo
+      - mongo_auth_data:/data/db
+      - mongo_auth_config:/data/configdb
+    networks:
+      - iot-net
+
+networks:
+  iot-net:
+    external: true
+
+volumes:
+  mongo_auth:
+  mongo_auth_data:
+  mongo_auth_config:

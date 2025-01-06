@@ -1,0 +1,38 @@
+services:
+  notification-service:
+    image: openjdk:22-jdk-oracle
+    container_name: notificationImage
+    ports:
+      - "${SERVICE_PORT1}:8080"
+      - "${SERVICE_PORT2}:8000"
+    env_file:
+      - .env
+    depends_on:
+      - notification-db
+    networks:
+      - iot-net
+    volumes:
+      - ./build/libs/NotificationService-0.0.1-SNAPSHOT.jar:/app/app.jar
+    working_dir: /app
+    entrypoint: java -Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8000 -jar /app/app.jar
+
+  notification-db:
+    image: mongo:latest
+    container_name: notificationDB
+    ports:
+      - "${MONGO_PORT}:27017"
+    volumes:
+      - mongo_notification:/etc/mongo
+      - mongo_notification_data:/data/db
+      - mongo_notification_config:/data/configdb
+    networks:
+      - iot-net
+
+networks:
+  iot-net:
+    external: true
+
+volumes:
+  mongo_notification:
+  mongo_notification_data:
+  mongo_notification_config:

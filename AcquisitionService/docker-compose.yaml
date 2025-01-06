@@ -1,0 +1,61 @@
+services:
+  acquisition-service:
+    image: openjdk:22-jdk-oracle
+    container_name: acquisitionImage
+    ports:
+      - "${SERVICE_PORT1}:8080"
+      - "${SERVICE_PORT2}:8000"
+    env_file:
+      - .env
+    depends_on:
+      - crate
+    networks:
+      - iot-net
+    volumes:
+      - ./build/libs/AcquisitionService-0.0.1-SNAPSHOT.jar:/app/app.jar
+    working_dir: /app
+    entrypoint: java -Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8000 -jar /app/app.jar
+
+  crate:
+    image: crate:5.8.1
+    container_name: acquisitionDB
+    command: crate -Cauth.host_based.enabled=false
+      -Ccluster.name=democluster -Chttp.cors.enabled=true -Chttp.cors.allow-origin="*"
+    environment:
+      - LOG4J_FORMAT_MSG_NO_LOOKUPS=true
+    ports:
+      # Admin UI
+      - "${CRATE_ADMIN_PORT}:4200"
+      # Transport protocol
+      - "${CRATE_TRANSPORT_PORT1}:4300"
+      - "${CRATE_TRANSPORT_PORT2}:5432"
+    volumes:
+      - acquisitionCrateData:/data
+    networks:
+      - iot-net
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana_iot
+    ports:
+      - "${GRAFANA_PORT}:3000"
+    depends_on:
+      - crate
+    environment:
+      - GF_SECURITY_ALLOW_EMBEDDING=true
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ORG_ROLE=viewer
+    volumes:
+      - iot_grafana_data:/var/lib/grafana
+      - iot_grafana_logs:/var/log/grafana
+    networks:
+      - iot-net
+
+networks:
+  iot-net:
+    external: true
+
+volumes:
+  acquisitionCrateData:
+  iot_grafana_data:
+  iot_grafana_logs:
