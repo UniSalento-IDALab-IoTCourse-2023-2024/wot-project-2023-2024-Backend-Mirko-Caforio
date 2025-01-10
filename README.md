@@ -39,7 +39,7 @@ The backend architecture is based on microservices that communicate with each ot
 
 ## Prerequisites
 
-- **Java**: Version 17 or higher.
+- **Java**: Version 21 or higher.
 - **Docker** and **Docker Compose**: For running the backend in containerised environments.
 
 ---
@@ -49,5 +49,19 @@ The backend architecture is based on microservices that communicate with each ot
 1. Clone the repository:
    ```bash
    git clone https://github.com/UniSalento-IDALab-IoTCourse-2023-2024/wot-project-2023-2024-Backend-Mirko-Caforio.git
-   cd sentinel-backend
+   
+   cd AcquisitionService
+   docker-compose up -d
+   
+   cd AuthService
+   docker-compose up -d
+   
+   cd MachineService
+   docker-compose up -d
+   
+   cd NotificationService
+   docker-compose up -d
+   
+   cd UserManagementService
+   docker-compose up -d
    ```
