@@ -59,11 +59,11 @@ public class MachineController {
     public MachineDTO insertMachine(@RequestBody MachineDTO machineDTO) {
         MachineDTO existingMachine = machineService.insertMachine(machineDTO);
 
-        if (existingMachine != null) {
+        if (existingMachine == null) {
             throw new ExistingMachineException("Machine already exists");
         }
 
-        return machineService.insertMachine(machineDTO);
+        return existingMachine;
     }
 
     @PutMapping(value = "/update", consumes = MediaType.APPLICATION_JSON_VALUE)
